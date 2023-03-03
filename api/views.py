@@ -41,16 +41,22 @@ def create_student(request):
 
 @csrf_exempt
 def update_student(request, id):
-    json_data = request.body
-    stream = io.BytesIO(json_data)
-    python_data = JSONParser().parse(stream)
-    stu = Student.objects.get(id=id)
-    serializer = StudentSerializer(stu, data=python_data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return HttpOK('Student Updated!')
-    else:
-        return HttpBadRequest(serializer.errors)
+    try:
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        python_data = JSONParser().parse(stream)
+        stu = Student.objects.get(id=id)
+        serializer = StudentSerializer(stu, data=python_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpOK('Student Updated!')
+        else:
+            return HttpBadRequest(serializer.errors)
+    except:
+
+        return HttpNotFound('Student Not Found')
+
+
 @csrf_exempt
 def delete_student(request, id):
     try:
