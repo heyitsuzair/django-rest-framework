@@ -1,37 +1,39 @@
 from django.shortcuts import render
 from .models import Student
 from .serializers import StudentSerializer
-from django.http import JsonResponse
 from utils.HttpErrors import HttpNotFound, HttpOK, HttpBadRequest
 import io
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 
 # Create your views here.
 
-
-def get_student(request, pk):
+@api_view()
+def get_student(req, pk):
     try:
         stu = Student.objects.get(id=pk)
         serializer = StudentSerializer(stu)
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
     except:
         return HttpNotFound('Student Not Found')
 
 
+@api_view()
 def get_students(request):
 
     stu = Student.objects.all()
     serializer = StudentSerializer(stu, many=True)
-    return JsonResponse(serializer.data, safe=False)
+    return Response(serializer.data)
 
 
 @csrf_exempt
-def create_student(request):
-    json_data = request.body
-    stream = io.BytesIO(json_data)
-    python_data = JSONParser().parse(stream)
-    serializer = StudentSerializer(data=python_data)
+@api_view(['POST'])
+def create_student(req):
+    body = req.data
+    serializer = StudentSerializer(data=body)
     if serializer.is_valid():
         serializer.save()
         return HttpOK('Student Created!')
@@ -40,13 +42,12 @@ def create_student(request):
 
 
 @csrf_exempt
-def update_student(request, id):
+@api_view(['PUT'])
+def update_student(req, id):
     try:
-        json_data = request.body
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
+        body = req.data
         stu = Student.objects.get(id=id)
-        serializer = StudentSerializer(stu, data=python_data, partial=True)
+        serializer = StudentSerializer(stu, data=body)
         if serializer.is_valid():
             serializer.save()
             return HttpOK('Student Updated!')
@@ -58,7 +59,8 @@ def update_student(request, id):
 
 
 @csrf_exempt
-def delete_student(request, id):
+@api_view(['DELETE'])
+def delete_student(req, id):
     try:
         stu = Student.objects.get(id=id)
         stu.delete()
