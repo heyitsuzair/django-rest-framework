@@ -101,50 +101,55 @@ from rest_framework import viewsets
 #     queryset = Student.objects.all()
 #     serializer_class = StudentSerializer
 
-class StudentViewSet(viewsets.ViewSet):
-    def list(self, req):
-        stu = Student.objects.all()
-        serializer = StudentSerializer(stu, many=True)
-        return Response(serializer.data)
+# class StudentViewSet(viewsets.ViewSet):
+#     def list(self, req):
+#         stu = Student.objects.all()
+#         serializer = StudentSerializer(stu, many=True)
+#         return Response(serializer.data)
 
-    def retrieve(self, req, pk=None):
-        try:
-            id = pk
-            stu = Student.objects.get(id=id)
-            serializer = StudentSerializer(stu)
-            return Response(serializer.data)
-        except:
-            return HttpNotFound('Student Not Found')
+#     def retrieve(self, req, pk=None):
+#         try:
+#             id = pk
+#             stu = Student.objects.get(id=id)
+#             serializer = StudentSerializer(stu)
+#             return Response(serializer.data)
+#         except:
+#             return HttpNotFound('Student Not Found')
 
-    def create(self, req):
-        body = req.data
-        serializer = StudentSerializer(data=body)
-        if serializer.is_valid():
-            serializer.save()
-            return HttpOK('Student Created!')
-        else:
-            return HttpBadRequest(serializer.errors)
+#     def create(self, req):
+#         body = req.data
+#         serializer = StudentSerializer(data=body)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return HttpOK('Student Created!')
+#         else:
+#             return HttpBadRequest(serializer.errors)
 
-    def update(self, req, pk=None):
-        try:
-            id = pk
-            body = req.data
-            stu = Student.objects.get(id=id)
-            serializer = StudentSerializer(stu, data=body)
-            if serializer.is_valid():
-                serializer.save()
-                return HttpOK('Student Updated!')
-            else:
-                return HttpBadRequest(serializer.errors)
-        except:
+#     def update(self, req, pk=None):
+#         try:
+#             id = pk
+#             body = req.data
+#             stu = Student.objects.get(id=id)
+#             serializer = StudentSerializer(stu, data=body)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return HttpOK('Student Updated!')
+#             else:
+#                 return HttpBadRequest(serializer.errors)
+#         except:
 
-            return HttpNotFound('Student Not Found')
+#             return HttpNotFound('Student Not Found')
 
-    def destroy(self, req, pk=None):
-        try:
-            id = pk
-            stu = Student.objects.get(id=id)
-            stu.delete()
-            return HttpOK('Student Deleted!')
-        except:
-            return HttpNotFound('Student Not Found!')
+#     def destroy(self, req, pk=None):
+#         try:
+#             id = pk
+#             stu = Student.objects.get(id=id)
+#             stu.delete()
+#             return HttpOK('Student Deleted!')
+#         except:
+#             return HttpNotFound('Student Not Found!')
+
+
+class StudentModelViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
