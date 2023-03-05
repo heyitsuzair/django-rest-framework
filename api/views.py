@@ -4,8 +4,9 @@ from utils.HttpErrors import HttpNotFound, HttpOK, HttpBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework import viewsets
 # Create your views here.
 
 # @api_view()
@@ -91,11 +92,59 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 #     def delete(self, req, *args, **kwargs):
 #         return self.destroy(req, *args, **kwargs)
 
-class StudentLCAPI(ListCreateAPIView):
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
+# class StudentLCAPI(ListCreateAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
 
 
-class StudentGPD(RetrieveUpdateDestroyAPIView):
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
+# class StudentGPD(RetrieveUpdateDestroyAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+class StudentViewSet(viewsets.ViewSet):
+    def list(self, req):
+        stu = Student.objects.all()
+        serializer = StudentSerializer(stu, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, req, pk=None):
+        try:
+            id = pk
+            stu = Student.objects.get(id=id)
+            serializer = StudentSerializer(stu)
+            return Response(serializer.data)
+        except:
+            return HttpNotFound('Student Not Found')
+
+    def create(self, req):
+        body = req.data
+        serializer = StudentSerializer(data=body)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpOK('Student Created!')
+        else:
+            return HttpBadRequest(serializer.errors)
+
+    def update(self, req, pk=None):
+        try:
+            id = pk
+            body = req.data
+            stu = Student.objects.get(id=id)
+            serializer = StudentSerializer(stu, data=body)
+            if serializer.is_valid():
+                serializer.save()
+                return HttpOK('Student Updated!')
+            else:
+                return HttpBadRequest(serializer.errors)
+        except:
+
+            return HttpNotFound('Student Not Found')
+
+    def destroy(self, req, pk=None):
+        try:
+            id = pk
+            stu = Student.objects.get(id=id)
+            stu.delete()
+            return HttpOK('Student Deleted!')
+        except:
+            return HttpNotFound('Student Not Found!')
