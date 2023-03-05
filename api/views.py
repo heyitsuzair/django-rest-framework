@@ -7,8 +7,10 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework import viewsets
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from .custompermission import MyPermission
+
 # Create your views here.
 
 # @api_view()
@@ -156,16 +158,24 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 #     serializer_class = StudentSerializer
 
 # # Without Authentication
+# class StudentModelViewSet(viewsets.ModelViewSet):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+#     authentication_class = [BasicAuthentication]
+#     permission_classes = [AllowAny]
+
+
+# # With Authentication
+# class StudentModelViewSet(viewsets.ModelViewSet):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+#     authentication_class = [BasicAuthentication]
+#     # permission_classes = [IsAuthenticated]
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+
+# Custom Permissions
 class StudentModelViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    authentication_class = [BasicAuthentication]
-    permission_classes = [AllowAny]
-
-
-# With Authentication
-class StudentModelViewSet(viewsets.ModelViewSet):
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
-    authentication_class = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_class = [SessionAuthentication]
+    permission_classes = [MyPermission]
